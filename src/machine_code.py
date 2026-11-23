@@ -11,9 +11,12 @@ from src.specification import (
 def encode_instruction(instruction: Instruction) -> bytes:
     """Упаковать операцию и операнд в little-endian машинный код."""
     spec = COMMANDS[instruction.mnemonic]
+    if spec.operand_bits == 0 and instruction.operand is not None:
+        raise ValueError("У команды не должно быть операнда")
+    if spec.operand_bits and instruction.operand is None:
+        raise ValueError("Для команды требуется операнд")
     operand = instruction.operand or 0
-    if not 0 <= operand < (1 << spec.operand_bits if
-                            spec.operand_bits else 1):
+    if not 0 <= operand < (1 << spec.operand_bits):
         raise ValueError("Операнд вне допустимого диапазона")
     packed = spec.opcode | (operand << OPCODE_BITS)
     return packed.to_bytes(spec.size, byteorder="little")

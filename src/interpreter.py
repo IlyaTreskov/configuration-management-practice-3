@@ -42,8 +42,10 @@ class Machine:
             self.accumulator = self.read(self.accumulator)
         elif instruction.mnemonic == "STORE":
             self.write(operand, self.accumulator)
+        elif instruction.mnemonic == "OR":
+            self.accumulator |= self.read(operand)
         else:
-            raise ValueError("Команда пока не реализована")
+            raise ValueError("Неизвестная команда")
 
     def run(self) -> int:
         """Считывать, декодировать и исполнять команды до конца файла."""
