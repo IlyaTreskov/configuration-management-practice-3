@@ -27,3 +27,26 @@ def encode_program(instructions: list[Instruction]) -> bytes:
 def format_bytes(data: bytes) -> str:
     """Вывести байты в формате из спецификации УВМ."""
     return ", ".join(f"0x{value:02X}" for value in data)
+
+
+def decode_instruction(data: bytes, offset: int = 0) -> tuple[Instruction, int]:
+    """Прочитать одну машинную команду и вернуть новый указатель."""
+    if not 0 <= offset < len(data):
+        raise ValueError("Нет данных для чтения команды")
+    opcode = data[offset] & ((1 << OPCODE_BITS) - 1)
+    if opcode not in BY_OPCODE:
+        raise ValueError(f"Неизвестный код операции: {opcode}")
+    name = BY_OPCODE[opcode]
+    spec = COMMANDS[name]
+    end = offset + spec.size
+    if end > len(data):
+        raise ValueError("Обрезанная машинная команда")
+    packed = int.from_bytes(data[offset:end], byteorder="little")
+    valid_bits = OPCODE_BITS + spec.operand_bits
+    if packed >> valid_bits:
+        raise ValueError("Ненулевые зарезервированные биты")
+    if spec.operand_bits == 0:
+        return Instruction(name), end
+    mask = (1 << spec.operand_bits) - 1
+    operand = (packed >> OPCODE_BITS) & mask
+    return Instruction(name, operand), end

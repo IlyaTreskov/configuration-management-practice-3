@@ -1,0 +1,18 @@
+; Инициализируем массив A в ячейках 100, 101, 102
+LOAD 10
+STORE 100
+LOAD 20
+STORE 101
+LOAD 30
+STORE 102
+
+; Последовательно копируем элементы A в B (103, 104, 105)
+LOAD 100
+READ
+STORE 103
+LOAD 101
+READ
+STORE 104
+LOAD 102
+READ
+STORE 105
